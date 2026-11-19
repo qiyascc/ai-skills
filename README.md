@@ -4,9 +4,7 @@ Skills for coding agents by [Qiyas CC](https://qiyas.cc/). Each skill is a folde
 
 ## Skills
 
-| Skill | Name | What it does |
-| --- | --- | --- |
-| [Hello](skills/hello) | `hello` | A simple test skill that says hello. |
+No skills yet.
 
 ## Install
 
