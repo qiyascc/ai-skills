@@ -1,0 +1,4 @@
+{ "bpm": 152, "fps": 30, "duration": 6, "offset": 0,
+  "scenes": [ {"name": "Lock screen", "start": 0, "end": 0.79, "events": [ {"t": 0.59, "what": "blob hops", "big": true} ]},
+              {"name": "Banners", "start": 0.8, "end": 3.3, "events": [ {"t": 1.6, "what": "banner 1", "big": true}, {"t": 2.0, "what": "tick"} ]},
+              {"name": "Saved", "start": 3.2, "end": 6, "events": [ {"t": 3.17, "what": "odometer", "big": true} ]} ] }

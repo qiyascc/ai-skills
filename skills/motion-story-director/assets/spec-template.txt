@@ -1,0 +1,17 @@
+Create a [vertical 1080x1920] motion-graphics [film], [D] s, [fps] fps ([frames] frames), [one continuous take], no voice-over, no captions except where stated.
+
+GLOBAL RULES: edge margin [75 px / 0.11 W]. Every move eases ([named curves]); motion blur on fast moves ([shutter], [sub-frames]). Objects appear/leave by moving, scaling, masking, no fades except light. Camera: [rules]. Grid: [BPM], beat [s] = [frames] frames, big changes on beats [8,16,24…].
+
+LOOK: background [hex + gradient/texture per scene]. Palette [hex list with roles]. Type: [display font] for [use], [support font] for [use]. Light: [glow rules].
+
+HERO: [precise description, size, materials, how it transforms].
+
+BAN LIST: [no emoji / particles / dashed lines / invented icons / faces / …].
+
+SCENES:
+0.00-0.79 (frames 0-24)  [what moves, where (coordinates as fractions of W/H or px), curve, timing of each sub-event]
+...
+
+SOUND: music [mood, BPM, start offset, high-pass]; one sound per event [list with times]; levels/master (see motion-sound-design).
+
+CHECKPOINTS: [3 timestamps of signature frames to verify after render]

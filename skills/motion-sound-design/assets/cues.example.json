@@ -1,0 +1,12 @@
+{
+  "duration": 15.0, "lufs": -13, "true_peak": -1.0, "seed": 3,
+  "library": "sfx_lib",
+  "music": "track.mp3", "music_start": 49.735, "music_gain_db": 0, "music_highpass": 55,
+  "duck": {"db": -8, "ms": 60, "band": [2000, 8000], "types": ["tick", "click", "key"]},
+  "cues": [
+    {"t": 0.05, "type": "shine"},
+    {"t": 0.59, "type": "whoosh"},
+    {"t": 0.99, "type": "thud"},
+    {"t": 3.16, "type": "swish", "db": 12}
+  ]
+}
