@@ -65,7 +65,7 @@ def bpm_estimate(path, dur):
         if score > bv: bv, best = score, bpm
     period = 60 / best * fr; phases = np.arange(0, period, 0.5)
     ph = max(phases, key=lambda p: on[np.clip((p + np.arange(0, len(on) - p, period)).astype(int), 0, len(on) - 1)].sum())
-    return {"bpm": float(best), "beat_s": round(60 / best, 4), "first_beat_s": round(ph / fr, 3),
+    return {"bpm": float(best), "beat_s": round(60 / best, 4), "first_beat_s": round((ph + 1) / fr, 3),
             "note": "estimate; verify by ear. Often half/double of the true tempo."}
 
 def contact(images, labels, out, cols=6, w=220):
@@ -83,7 +83,7 @@ def cmd_analyze(path, out, every=0.5):
     diff = np.abs(np.diff(g, axis=0)).mean((1, 2)) if len(g) > 1 else np.zeros(1)
     hist = [np.histogram(f, 32, (0, 255))[0] / f.size for f in g]
     hd = np.array([np.abs(hist[i + 1] - hist[i]).sum() for i in range(len(hist) - 1)]) if len(hist) > 1 else np.zeros(1)
-    thr = max(0.35, float(np.percentile(hd, 97)) if len(hd) else 1)
+    thr = max(0.35, float(np.median(hd) + 8 * np.median(np.abs(hd - np.median(hd))))) if len(hd) else 1
     cuts = [round(float(i + 1) / fs, 2) for i in np.where(hd > thr)[0]]
     motion = [{"t": round(i / fs, 2), "energy": round(float(v), 2)} for i, v in enumerate(diff)]
     from scipy.signal import find_peaks
