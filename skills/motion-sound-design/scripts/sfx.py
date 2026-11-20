@@ -1,7 +1,7 @@
 ###############
 # Qiyas Sadıqov CC
 ###############
-import json, os, random, subprocess, sys, tempfile
+import json, os, random, re, subprocess, sys, tempfile
 import numpy as np
 from scipy.io import wavfile
 from scipy.signal import butter, sosfilt, resample
@@ -149,10 +149,26 @@ def cmd_mix(cfg_path, out):
     with tempfile.TemporaryDirectory() as d:
         raw = os.path.join(d, "raw.wav"); wavfile.write(raw, sr, mix.astype(np.float32))
         lufs, tp = cfg.get("lufs", -13), cfg.get("true_peak", -1.0)
+        got, peak = master(raw, out, lufs, tp, sr)
+    print(f"mixed {len(times)} cues -> {out} ({got:.1f} LUFS, true peak {peak:.1f} dBTP, target {lufs})" + (f", dropped {len(dropped)} (>8 per 0.25 s)" if dropped else ""))
+
+def measure(path):
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", path, "-af", "ebur128=peak=true", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    s = err[err.rfind("Summary:"):]
+    return tuple(float(re.search(rf"{k}:\s+(-?[\d.]+|-inf)", s).group(1)) for k in ("I", "Peak"))
+
+def master(raw, out, lufs, tp, sr):
+    level = measure(raw)[0]
+    gain = lufs - level if level > -70 else 0.0
+    for _ in range(3):
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", raw, "-af",
-                        f"loudnorm=I={lufs}:TP={tp}:LRA=9,alimiter=limit={10 ** (tp / 20):.4f}:attack=5:release=50:level=false",
-                        "-ar", str(sr), out], check=True)
-    print(f"mixed {len(times)} cues -> {out} (target {cfg.get('lufs', -13)} LUFS)" + (f", dropped {len(dropped)} (>8 per 0.25 s)" if dropped else ""))
+                        f"volume={gain:.3f}dB,aresample=192000,alimiter=limit={10 ** ((tp - 1.0) / 20):.4f}:attack=1:release=50:level=false,aresample={sr}",
+                        out], check=True)
+        got, peak = measure(out)
+        if abs(got - lufs) <= 0.2 or got <= -70: break
+        gain += lufs - got
+    return got, peak
 
 def cmd_mux(video, audio, out):
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", video, "-i", audio, "-map", "0:v", "-map", "1:a",

@@ -97,9 +97,9 @@ def cmd_analyze(path, out, every=0.5):
     beat = bpm_estimate(path, dur) if info["audio"] else None
     loop = None
     if len(g) > 2:
-        loop = round(float(1 - np.abs(g[0] - g[-1]).mean() / 255), 3)
+        loop = round(float((np.abs(g[0] - g[-1]) > 16).mean() * 100), 2)
     rep = {"video": info, "scene_changes_s": cuts, "accent_peaks_s": accents, "palette": pal, "music": beat,
-           "loop_similarity_first_last": loop, "events_per_second": round(len(accents) / max(dur, 1e-6), 2),
+           "loop_changed_pct_first_last": loop, "events_per_second": round(len(accents) / max(dur, 1e-6), 2),
            "frames_dir": fdir, "contact_sheet": sheet, "motion_energy": motion}
     json.dump(rep, open(os.path.join(out, "report.json"), "w"), indent=1)
     md = [f"# Reference report: {os.path.basename(path)}",
@@ -108,7 +108,7 @@ def cmd_analyze(path, out, every=0.5):
           f"- motion accents: {accents}  ->  {rep['events_per_second']} big events/s",
           f"- palette: " + ", ".join(f"{p['hex']} ({p['share']:.0%})" for p in pal),
           f"- music: {beat['bpm']} BPM, beat {beat['beat_s']} s, first beat ~{beat['first_beat_s']} s ({beat['note']})" if beat else "- music: none / not detected",
-          f"- first/last frame similarity: {loop} (>0.95 suggests a seamless loop)",
+          f"- first/last frame: {loop}% of pixels differ (under 0.5% suggests a seamless loop)",
           "", "Accent peaks vs beat grid:" if beat else ""]
     if beat:
         for a in accents:
@@ -122,6 +122,17 @@ def cmd_frames(path, out, times):
     os.makedirs(out, exist_ok=True)
     for t in times: print(frame_at(path, t, os.path.join(out, f"ref_{t:06.2f}.png")))
 
+def colour_match(A, B):
+    key = lambda p: (p[:, 0] // 32) * 64 + (p[:, 1] // 32) * 8 + p[:, 2] // 32
+    pa = A.reshape(-1, 3); ka = key(pa).astype(int); bg = pa[ka == np.bincount(ka, minlength=512).argmax()].mean(0)
+    hists, shares = [], []
+    for X in (A, B):
+        p = X.reshape(-1, 3); m = np.sqrt(((p - bg) ** 2).sum(1)) > 24; shares.append(m.mean())
+        h = np.bincount(key(p[m]).astype(int), minlength=512).astype(np.float64); hists.append(h / max(h.sum(), 1))
+    if max(shares) < 0.003: return float(1 - np.abs(A.mean((0, 1)) - B.mean((0, 1))).mean() / 255)
+    if min(shares) < 0.003: return 0.0
+    return float(np.minimum(*hists).sum())
+
 def cmd_compare(ref, mine, out, times):
     os.makedirs(out, exist_ok=True); rows = []; scores = []
     for t in times:
@@ -130,7 +141,7 @@ def cmd_compare(ref, mine, out, times):
         B = np.asarray(Image.open(b).convert("RGB").resize((180, 320))).astype(np.float32)
         ga, gb = A.mean(2), B.mean(2)
         ga, gb = (ga - ga.mean()) / (ga.std() + 1e-6), (gb - gb.mean()) / (gb.std() + 1e-6)
-        struct = float((ga * gb).mean()); col = float(1 - np.abs(A.mean((0, 1)) - B.mean((0, 1))).mean() / 255)
+        struct = float((ga * gb).mean()); col = colour_match(A, B)
         scores.append({"t": t, "structure": round(struct, 3), "colour": round(col, 3)}); rows += [a, b]
     contact(rows, sum([[f"REF {s['t']}s", f"MINE s={s['structure']} c={s['colour']}"] for s in scores], []),
             os.path.join(out, "compare.jpg"), cols=2, w=360)

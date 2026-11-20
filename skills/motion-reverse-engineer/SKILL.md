@@ -34,7 +34,7 @@ Collect:
 - motion accents (peaks of motion energy) and their beat positions → the event rhythm
 - BPM + first beat (verify: accents should sit on beats/eighths; if they sit on every other beat, double/halve)
 - palette hex with shares → background vs accent colours
-- first/last frame similarity (> 0.95 = designed loop)
+- share of pixels that differ between the first and last frame (under 0.5% = designed loop)
 
 ## 2. Observe (eyes): answer these from the frames
 

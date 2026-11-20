@@ -65,7 +65,7 @@ Default levels relative to the music in the same band (built into the tool, over
 ticks +10.5 dB (4-10 kHz) · clicks +10 · keys +9 (1.5-8 kHz) · swishes +9.5 · hits/thuds +7 · pops +8 · squelch +7 · chime +5.
 
 - **No pumping sidechain.** Instead, under each tick/click/key the music gets a -8 dB, 60 ms dip only in 2-8 kHz (micro-ducking) so the hit cuts through while the groove continues.
-- Master: -13 LUFS integrated (Reels/TikTok/Shorts), true peak ≤ -1 dBTP, look-ahead limiter without pumping. For YouTube long-form use -14.
+- Master: -13 LUFS integrated (Reels/TikTok/Shorts), true peak ≤ -1 dBTP, look-ahead limiter without pumping. For YouTube long-form use -14. `sfx.py mix` limits 1 dB under the true-peak target because AAC encoding in `mux` raises peaks by about 0.6 dB.
 - Voice-over (if any) sits on top: music bed 18-25 dB below speech.
 - Check on phone speaker AND headphones.
 

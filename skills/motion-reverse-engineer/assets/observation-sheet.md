@@ -1,6 +1,6 @@
 # Observation sheet: [reference file]
 
-Measured (from `report.md`): [W×H], [fps] fps, [duration] s, cuts [list or none], accents [list], BPM [n] (first beat [s]), palette [hex list], loop similarity [n].
+Measured (from `report.md`): [W×H], [fps] fps, [duration] s, cuts [list or none], accents [list], BPM [n] (first beat [s]), palette [hex list], first/last frame difference [n]%.
 
 | # | Question | Answer (with times) |
 |---|---|---|
